@@ -1,6 +1,8 @@
 package gostd
 
-import "iter"
+import (
+	"iter"
+)
 
 func IntoIter[T any](s *[]T) iter.Seq[*T] {
 	return func(yield func(*T) bool) {
@@ -12,21 +14,21 @@ func IntoIter[T any](s *[]T) iter.Seq[*T] {
 	}
 }
 
-func Map[T, U any](seq *iter.Seq[T], f func(*T) U) iter.Seq[U] {
+func Map[T, U any](seq iter.Seq[T], f func(T) U) iter.Seq[U] {
 	return func(yield func(U) bool) {
-		for a := range *seq {
-			if !yield(f(&a)) {
+		for a := range seq {
+			if !yield(f(a)) {
 				return
 			}
 		}
 	}
 }
 
-func Filter[T any](seq *iter.Seq[T], f func(*T) bool) iter.Seq[*T] {
-	return func(yield func(*T) bool) {
-		for a := range *seq {
-			if f(&a) {
-				if !yield(&a) {
+func Filter[T any](seq iter.Seq[T], f func(T) bool) iter.Seq[T] {
+	return func(yield func(T) bool) {
+		for a := range seq {
+			if f(a) {
+				if !yield(a) {
 					return
 				}
 			}
@@ -34,43 +36,44 @@ func Filter[T any](seq *iter.Seq[T], f func(*T) bool) iter.Seq[*T] {
 	}
 }
 
-func ForEach[T any](seq *iter.Seq[T], f func(*T)) {
-	for a := range *seq {
-		f(&a)
+func ForEach[T any](seq iter.Seq[T], f func(T)) {
+	for a := range seq {
+		f(a)
 	}
 }
 
-func Every[T any](seq *iter.Seq[T], f func(*T) bool) bool {
-	for a := range *seq {
-		if !f(&a) {
+func Every[T any](seq iter.Seq[T], f func(T) bool) bool {
+	for a := range seq {
+		if !f(a) {
 			return false
 		}
 	}
 	return true
 }
 
-func Some[T any](seq *iter.Seq[T], f func(*T) bool) bool {
-	for a := range *seq {
-		if f(&a) {
+func Some[T any](seq iter.Seq[T], f func(T) bool) bool {
+	for a := range seq {
+		if f(a) {
 			return true
 		}
 	}
 	return false
 }
 
-func Find[T any](seq *iter.Seq[T], f func(*T) bool) (*T, bool) {
-	for a := range *seq {
-		if f(&a) {
-			return &a, true
+func Find[T any](seq iter.Seq[T], f func(T) bool) (T, bool) {
+	for a := range seq {
+		if f(a) {
+			return a, true
 		}
 	}
-	return nil, false
+	var zero T
+	return zero, false
 }
 
-func IndexOf[T any](seq *iter.Seq[T], f func(*T) bool) int {
+func IndexOf[T any](seq iter.Seq[T], f func(T) bool) int {
 	i := 0
-	for a := range *seq {
-		if f(&a) {
+	for a := range seq {
+		if f(a) {
 			return i
 		}
 		i++
