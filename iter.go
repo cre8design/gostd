@@ -2,6 +2,16 @@ package gostd
 
 import "iter"
 
+func IntoIter[T any](s []T) iter.Seq[T] {
+	return func(yield func(T) bool) {
+		for _, a := range s {
+			if !yield(a) {
+				return
+			}
+		}
+	}
+}
+
 func Map[T, U any](seq iter.Seq[T], f func(T) U) iter.Seq[U] {
 	return func(yield func(U) bool) {
 		for a := range seq {
